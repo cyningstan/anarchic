@@ -1,0 +1,202 @@
+# ======================================================================
+# Anarchic Kingdom
+# A light strategy game set in medieval times.
+# Copyright (C) Damian Gareth Walker 2021.
+#
+# Makefile for GNU C systems.
+# Builds a scrolling text version of the game.
+#
+
+# We need to explicitly define what slashes are.
+!ifdef __LINUX__
+DIRSEP = /
+!else
+DIRSEP = \
+!endif
+
+# Paths and extensions
+SRCDIR = src
+INCDIR = inc
+DOCDIR = doc
+OBJDIR = obj
+LIBDIR = lib
+BINDIR = bin
+ASSETDIR = assets
+INSTALLDIR = anarchic
+SRCEXT = c
+INCEXT = h
+OBJEXT = obj
+LIBEXT = lib
+
+# Paths (CGALIB)
+CGADIR = cgalib$(DIRSEP)
+CGALIB = $(CGADIR)cgalib$(DIRSEP)
+CGAINC = $(CGADIR)inc$(DIRSEP)
+
+# Tools
+CC = wcc
+AR = wlib
+LD = wcl
+!ifdef __LINUX__
+CP = cp
+MKASSETS = dosbox -c "mount c $(%cwd)" &
+	-c "c:" &
+	-c "bin\\assets" &
+	-c "exit"
+RM = rm
+!else
+CP = copy
+MKASSETS = $(BINDIR)$(DIRSEP)assets
+RM = del
+!endif
+
+# Compiler flags
+CCOPTS = -q -0 -W4 -ml -i=$(INCDIR) -i=$(CGAINC)
+LDOPTS = -q
+
+#
+# Binaries
+#
+
+# All The Things
+GAME : &
+	$(INSTALLDIR)$(DIRSEP)anarchic.exe &
+	$(INSTALLDIR)$(DIRSEP)ANARCHIC.DAT &
+	$(INSTALLDIR)$(DIRSEP)anarchic.txt
+
+# Main Program
+$(INSTALLDIR)$(DIRSEP)anarchic.exe: &
+	$(OBJDIR)$(DIRSEP)anarchic.$(OBJEXT) &
+	$(LIBDIR)$(DIRSEP)$(LIBPREFIX)anarchic.$(LIBEXT) &
+	$(CGALIB)$(DIRSEP)cga-ml.$(LIBEXT)
+	$(LD) $(LDOPTS) -fe=$@ $<
+
+# Asset Generation Binary
+$(BINDIR)$(DIRSEP)assets.exe : &
+	$(OBJDIR)$(DIRSEP)assets.$(OBJEXT) &
+	$(OBJDIR)$(DIRSEP)fatal.$(OBJEXT) &
+	$(CGALIB)$(DIRSEP)cga-ml.$(LIBEXT)
+	$(LD) $(LDOPTS) -fe=$@ $<
+
+# Combined Library
+$(LIBDIR)$(DIRSEP)$(LIBPREFIX)anarchic.$(LIBEXT): &
+	$(OBJDIR)$(DIRSEP)fatal.$(OBJEXT) &
+	$(OBJDIR)$(DIRSEP)game.$(OBJEXT) &
+	$(OBJDIR)$(DIRSEP)barony.$(OBJEXT) &
+	$(OBJDIR)$(DIRSEP)attack.$(OBJEXT) &
+	$(OBJDIR)$(DIRSEP)order.$(OBJEXT) &
+	$(OBJDIR)$(DIRSEP)report.$(OBJEXT) &
+	$(OBJDIR)$(DIRSEP)computer.$(OBJEXT) &
+	$(OBJDIR)$(DIRSEP)graphics.$(OBJEXT) &
+	$(OBJDIR)$(DIRSEP)beta.$(OBJEXT)
+	$(AR) $(AROPTS) $@ +-$(OBJDIR)$(DIRSEP)fatal.$(OBJEXT)
+	$(AR) $(AROPTS) $@ +-$(OBJDIR)$(DIRSEP)game.$(OBJEXT)
+	$(AR) $(AROPTS) $@ +-$(OBJDIR)$(DIRSEP)barony.$(OBJEXT)
+	$(AR) $(AROPTS) $@ +-$(OBJDIR)$(DIRSEP)attack.$(OBJEXT)
+	$(AR) $(AROPTS) $@ +-$(OBJDIR)$(DIRSEP)order.$(OBJEXT)
+	$(AR) $(AROPTS) $@ +-$(OBJDIR)$(DIRSEP)report.$(OBJEXT)
+	$(AR) $(AROPTS) $@ +-$(OBJDIR)$(DIRSEP)computer.$(OBJEXT)
+	$(AR) $(AROPTS) $@ +-$(OBJDIR)$(DIRSEP)graphics.$(OBJEXT)
+	$(AR) $(AROPTS) $@ +-$(OBJDIR)$(DIRSEP)beta.$(OBJEXT)
+
+#
+# Game Data
+#
+
+# The asset file
+$(INSTALLDIR)$(DIRSEP)ANARCHIC.DAT: &
+	$(BINDIR)$(DIRSEP)assets.exe &
+	$(ASSETDIR)$(DIRSEP)anarch-1.pic &
+	$(ASSETDIR)$(DIRSEP)anarch-2.pic
+	$(MKASSETS)
+
+# The manual
+$(INSTALLDIR)$(DIRSEP)anarchic.txt: &
+	$(DOCDIR)$(DIRSEP)anarchic.txt
+	$(CP) $< $@
+
+#
+# Modules
+#
+
+# Main Module
+$(OBJDIR)$(DIRSEP)anarchic.$(OBJEXT): &
+	$(SRCDIR)$(DIRSEP)anarchic.$(SRCEXT) &
+	$(INCDIR)$(DIRSEP)anarchic.$(INCEXT) &
+	$(INCDIR)$(DIRSEP)game.$(INCEXT) &
+	$(INCDIR)$(DIRSEP)barony.$(INCEXT)
+	$(CC) $(CCOPTS) -fo=$@ $[@
+
+# Fatal Error Handler Module
+$(OBJDIR)$(DIRSEP)fatal.$(OBJEXT): &
+	$(SRCDIR)$(DIRSEP)fatal.$(SRCEXT) &
+	$(INCDIR)$(DIRSEP)fatal.$(INCEXT)
+	$(CC) $(CCOPTS) -fo=$@ $[@
+
+# Game Module
+$(OBJDIR)$(DIRSEP)game.$(OBJEXT): &
+	$(SRCDIR)$(DIRSEP)game.$(SRCEXT) &
+	$(SRCDIR)$(DIRSEP)anarchic.$(SRCEXT) &
+	$(INCDIR)$(DIRSEP)game.$(INCEXT) &
+	$(INCDIR)$(DIRSEP)barony.$(INCEXT)
+	$(CC) $(CCOPTS) -fo=$@ $[@
+
+# Barony Module
+$(OBJDIR)$(DIRSEP)barony.$(OBJEXT): &
+	$(SRCDIR)$(DIRSEP)barony.$(SRCEXT) &
+	$(INCDIR)$(DIRSEP)barony.$(INCEXT)
+	$(CC) $(CCOPTS) -fo=$@ $[@
+
+# Barony Module
+$(OBJDIR)$(DIRSEP)attack.$(OBJEXT): &
+	$(SRCDIR)$(DIRSEP)attack.$(SRCEXT) &
+	$(INCDIR)$(DIRSEP)attack.$(INCEXT) &
+	$(INCDIR)$(DIRSEP)barony.$(INCEXT)
+	$(CC) $(CCOPTS) -fo=$@ $[@
+
+# Barony Module
+$(OBJDIR)$(DIRSEP)order.$(OBJEXT): &
+	$(SRCDIR)$(DIRSEP)order.$(SRCEXT) &
+	$(INCDIR)$(DIRSEP)order.$(INCEXT)
+	$(CC) $(CCOPTS) -fo=$@ $[@
+
+# Report Module
+$(OBJDIR)$(DIRSEP)report.$(OBJEXT): &
+	$(SRCDIR)$(DIRSEP)report.$(SRCEXT) &
+	$(INCDIR)$(DIRSEP)anarchic.$(INCEXT) &
+	$(INCDIR)$(DIRSEP)fatal.$(INCEXT) &
+	$(INCDIR)$(DIRSEP)barony.$(INCEXT) &
+	$(INCDIR)$(DIRSEP)attack.$(INCEXT) &
+	$(INCDIR)$(DIRSEP)report.$(INCEXT)
+	$(CC) $(CCOPTS) -fo=$@ $[@
+
+# Computer Player Module
+$(OBJDIR)$(DIRSEP)computer.$(OBJEXT): &
+	$(SRCDIR)$(DIRSEP)computer.$(SRCEXT) &
+	$(INCDIR)$(DIRSEP)anarchic.$(INCEXT) &
+	$(INCDIR)$(DIRSEP)computer.$(INCEXT) &
+	$(INCDIR)$(DIRSEP)barony.$(INCEXT) &
+	$(INCDIR)$(DIRSEP)attack.$(INCEXT) &
+	$(INCDIR)$(DIRSEP)order.$(INCEXT)
+	$(CC) $(CCOPTS) -fo=$@ $[@
+
+# Graphical Display Module
+$(OBJDIR)$(DIRSEP)graphics.$(OBJEXT): &
+	$(SRCDIR)$(DIRSEP)graphics.$(SRCEXT) &
+	$(INCDIR)$(DIRSEP)display.$(INCEXT) &
+	$(INCDIR)$(DIRSEP)barony.$(INCEXT) &
+	$(INCDIR)$(DIRSEP)report.$(INCEXT)
+	$(CC) $(CCOPTS) -fo=$@ $[@
+
+# Beta Test Hander Module
+$(OBJDIR)$(DIRSEP)beta.$(OBJEXT): &
+	$(SRCDIR)$(DIRSEP)beta.$(SRCEXT) &
+	$(INCDIR)$(DIRSEP)fatal.$(INCEXT)
+	$(CC) $(CCOPTS) -fo=$@ $[@
+
+# Asset Generation Module
+$(OBJDIR)$(DIRSEP)assets.$(OBJEXT): &
+	$(SRCDIR)$(DIRSEP)assets.$(SRCEXT) &
+	$(ASSETDIR)$(DIRSEP)ANARCH-1.PIC &
+	$(ASSETDIR)$(DIRSEP)ANARCH-2.PIC
+	$(CC) $(CCOPTS) -fo=$@ $[@

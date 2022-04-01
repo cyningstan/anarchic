@@ -1,0 +1,133 @@
+# ======================================================================
+# Anarchic Kingdom
+# A light strategy game set in medieval times.
+# Copyright (C) Damian Gareth Walker 2021.
+#
+# Makefile for GNU C systems.
+# Builds a scrolling text version of the game.
+#
+
+# Paths and extensions
+SRCDIR := src
+INCDIR := inc
+DOCDIR := doc
+OBJDIR := obj
+LIBDIR := lib
+BINDIR := bin
+INSTALLDIR := /usr/local
+SRCEXT := c
+INCEXT := h
+OBJEXT := o
+LIBEXT := a
+LIBPREFIX := lib
+
+# Tools
+CC = gcc
+AR = ar
+LD = gcc
+
+# Compiler flags
+CCOPTS := -Wall -I$(INCDIR) -I/usr/local/include -c
+AROPTS := rcs
+
+#
+# Binaries
+#
+
+# Main Program
+$(BINDIR)/anarchic: \
+	$(OBJDIR)/anarchic.$(OBJEXT) \
+	$(LIBDIR)/$(LIBPREFIX)anarchic.$(LIBEXT)
+	$(LD) $(OBJDIR)/anarchic.$(OBJEXT) -L./$(LIBDIR) -lanarchic -o $@
+
+# Combined Library
+$(LIBDIR)/$(LIBPREFIX)anarchic.$(LIBEXT): \
+	$(OBJDIR)/fatal.$(OBJEXT) \
+	$(OBJDIR)/game.$(OBJEXT) \
+	$(OBJDIR)/barony.$(OBJEXT) \
+	$(OBJDIR)/attack.$(OBJEXT) \
+	$(OBJDIR)/order.$(OBJEXT) \
+	$(OBJDIR)/report.$(OBJEXT) \
+	$(OBJDIR)/computer.$(OBJEXT) \
+	$(OBJDIR)/terminal.$(OBJEXT)
+	$(AR) $(AROPTS) $@ $(OBJDIR)/fatal.$(OBJEXT)
+	$(AR) $(AROPTS) $@ $(OBJDIR)/game.$(OBJEXT)
+	$(AR) $(AROPTS) $@ $(OBJDIR)/barony.$(OBJEXT)
+	$(AR) $(AROPTS) $@ $(OBJDIR)/attack.$(OBJEXT)
+	$(AR) $(AROPTS) $@ $(OBJDIR)/order.$(OBJEXT)
+	$(AR) $(AROPTS) $@ $(OBJDIR)/report.$(OBJEXT)
+	$(AR) $(AROPTS) $@ $(OBJDIR)/computer.$(OBJEXT)
+	$(AR) $(AROPTS) $@ $(OBJDIR)/terminal.$(OBJEXT)
+
+#
+# Modules
+#
+
+# Main Module
+$(OBJDIR)/anarchic.$(OBJEXT): \
+	$(SRCDIR)/anarchic.$(SRCEXT) \
+	$(INCDIR)/anarchic.$(INCEXT) \
+	$(INCDIR)/game.$(INCEXT) \
+	$(INCDIR)/barony.$(INCEXT)
+	$(CC) $(CCOPTS) -o $@ $<
+
+# Fatal Error Handler Module
+$(OBJDIR)/fatal.$(OBJEXT): \
+	$(SRCDIR)/fatal.$(SRCEXT) \
+	$(INCDIR)/fatal.$(INCEXT)
+	$(CC) $(CCOPTS) -o $@ $<
+
+# Game Module
+$(OBJDIR)/game.$(OBJEXT): \
+	$(SRCDIR)/game.$(SRCEXT) \
+	$(SRCDIR)/anarchic.$(SRCEXT) \
+	$(INCDIR)/game.$(INCEXT) \
+	$(INCDIR)/barony.$(INCEXT)
+	$(CC) $(CCOPTS) -o $@ $<
+
+# Barony Module
+$(OBJDIR)/barony.$(OBJEXT): \
+	$(SRCDIR)/barony.$(SRCEXT) \
+	$(INCDIR)/barony.$(INCEXT)
+	$(CC) $(CCOPTS) -o $@ $<
+
+# Barony Module
+$(OBJDIR)/attack.$(OBJEXT): \
+	$(SRCDIR)/attack.$(SRCEXT) \
+	$(INCDIR)/attack.$(INCEXT) \
+	$(INCDIR)/barony.$(INCEXT)
+	$(CC) $(CCOPTS) -o $@ $<
+
+# Barony Module
+$(OBJDIR)/order.$(OBJEXT): \
+	$(SRCDIR)/order.$(SRCEXT) \
+	$(INCDIR)/order.$(INCEXT)
+	$(CC) $(CCOPTS) -o $@ $<
+
+# Report Module
+$(OBJDIR)/report.$(OBJEXT): \
+	$(SRCDIR)/report.$(SRCEXT) \
+	$(INCDIR)/anarchic.$(INCEXT) \
+	$(INCDIR)/fatal.$(INCEXT) \
+	$(INCDIR)/barony.$(INCEXT) \
+	$(INCDIR)/attack.$(INCEXT) \
+	$(INCDIR)/report.$(INCEXT)
+	$(CC) $(CCOPTS) -o $@ $<
+
+# Computer Player Module
+$(OBJDIR)/computer.$(OBJEXT): \
+	$(SRCDIR)/computer.$(SRCEXT) \
+	$(INCDIR)/anarchic.$(INCEXT) \
+	$(INCDIR)/computer.$(INCEXT) \
+	$(INCDIR)/barony.$(INCEXT) \
+	$(INCDIR)/attack.$(INCEXT) \
+	$(INCDIR)/order.$(INCEXT)
+	$(CC) $(CCOPTS) -o $@ $<
+
+# Terminal Display Module
+$(OBJDIR)/terminal.$(OBJEXT): \
+	$(SRCDIR)/terminal.$(SRCEXT) \
+	$(INCDIR)/display.$(INCEXT) \
+	$(INCDIR)/barony.$(INCEXT) \
+	$(INCDIR)/report.$(INCEXT)
+	$(CC) $(CCOPTS) -o $@ $<
